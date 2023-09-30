@@ -49,7 +49,7 @@ def exchange_code_for_access_token(code):
 # Function to get the user's top artists
 def get_top_artists(access_token, time_range):
     headers = {"Authorization": f"Bearer {access_token}"}
-    params = {"time_range": time_range, "limit":20}
+    params = {"time_range": time_range, "limit":1}
     response = requests.get(top_artists_url, params=params, headers=headers)
     return response.json()
 
@@ -57,7 +57,9 @@ def get_top_artists(access_token, time_range):
 def getartists():
 
     time=request.args.get('time')
+    
     top_artists = get_top_artists(session['access_token'], time)
+    
     return top_artists
 
 @app.route('/')
@@ -78,27 +80,43 @@ def callback():
     session['access_token'] = access_token
     print(session['access_token'])
     return redirect('http://localhost:3000/')
+
+
+
+
+    
+@app.route('/get_concerts')
+def concerts():
+    latitude = request.args.get('latitude')
+    longitude = request.args.get('longitude')
+    print(latitude)
+    print(longitude)
+    print('testing')
+
+    time=request.args.get('time')
     
     # Fetch the user's top artists for the last month (you can change the time range)
-    # top_artists = get_top_artists(access_token, "short_term")
-    # artist_items = top_artists.get('items', [])
-
-    # artist_names = []
-    # artist_images = []
-    # event_details=[]
-    # for artist in artist_items:
-        
-    #     name = artist['name']
-    #     images = artist['images'][2]["url"]
-    #     artist_names.append(name)
-    #     artist_images.append(images)
+    top_artists = get_top_artists(session['access_token'], time)
     
-    # for artist in artist_names:
-    #     event_details.append(ticketmasterapi.get_near_events(artist,'Phoenix'))
+    artist_items = top_artists.get('items', [])
+
+    artist_names = []
+    artist_images = []
+    event_details=[]
+    for artist in artist_items:
         
-    # # Process and display the user's top artists
-    # # return jsonify({'artist_names': artist_names, 'artist_images': artist_images})
-    # return jsonify({'event_details':event_details})
+        name = artist['name']
+        
+        images = artist['images'][2]["url"]
+        artist_names.append(name)
+        artist_images.append(images)
+    
+    for artist in artist_names:
+        
+        event_details.append(ticketmasterapi.get_near_events(artist,latitude,longitude))
+    
+    return(event_details)
+    
 
 if __name__ == '__main__':
     app.run(debug=True)
