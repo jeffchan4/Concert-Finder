@@ -13,8 +13,10 @@ def get_near_events(artist_name, latitude,longitude):
         'apikey': api_key,
         'keyword': artist_name,
         'classificationName': 'music',  # You can specify the type of event (e.g., music)
-        'latlong': f'{latitude},{longitude}' ,
-        'size': 3
+        # 'latlong': f'{latitude},{longitude}' ,
+        'city':'Toronto',
+        'size': 1,
+        
     }
 
     # Make the request to search for artist events near the specified location
@@ -31,6 +33,13 @@ def get_near_events(artist_name, latitude,longitude):
         if events:
             # Process and display the upcoming events
             for event in events:
+                event_id=event['id']
+                event_url=f"https://app.ticketmaster.com/discovery/v2/events/{event_id}.json?apikey={api_key}"
+                response=requests.get(event_url)
+                event_data= response.json()
+                buy_ticket_url = event_data['url']
+
+                events_list.append(f"Event url: {buy_ticket_url}  " )
                 events_list.append(f"Event Name: {event['name']}, ")
                 events_list.append(f"Date: {event['dates']['start']['localDate']}, ")
                 events_list.append(f"Venue: {event['_embedded']['venues'][0]['name']}, ")

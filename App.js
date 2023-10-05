@@ -2,15 +2,11 @@ import React, { useState, useEffect, useCallback } from 'react';
 
 function App() {
     
-      
-  const loginToSpotify = () => {
-    // Redirect to your Flask /login route
-    window.location.href = 'http://localhost:5000/login';
-  };
-
   const [topArtists, setTopArtists] = useState([]);
   const [upcomingConcerts, setUpcomingConcerts] = useState([]);
-  const [timeRange, setTimeRange] = useState('long_term');
+  const [timeRange, setTimeRange] = useState('short_term');
+  const [accessToken, setAccessToken] = useState(null);
+ 
 
   const fetchTopArtists = useCallback(() => {
     // Fetch data from Flask endpoint for top artists
@@ -74,6 +70,41 @@ function App() {
         console.error('Error in fetchTopArtists:', error);
       });
   }, [timeRange]);
+  
+  useEffect(() => {
+    // Fetch the new access token from your Flask backend
+    const fetchNewAccessToken = async () => {
+      try {
+        const response = await fetch('/refresh_token', {
+          method: 'POST',
+          // You may need to include headers or credentials depending on your server setup
+        });
+
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+
+        const data = await response.json();
+
+        // Assuming your server responds with the new access token
+        const newAccessToken = data.access_token;
+        console.log('successful fetch of access token')
+        // Update the state with the new access token
+        setAccessToken(newAccessToken);
+      } catch (error) {
+        console.error('Error refreshing access token:', error);
+      }
+    };
+
+    // Call the function to refresh the token when the component mounts
+    fetchNewAccessToken();
+    const intervalId = setInterval(fetchNewAccessToken, 900000);
+
+    // Clean up the interval when the component unmounts
+    return () => clearInterval(intervalId);
+  }, []);
+
+  
 
   useEffect(() => {
     // Call fetchTopArtists when the component mounts
@@ -81,15 +112,19 @@ function App() {
   }, [fetchTopArtists]);
 
 
+  
+
+
   return (
+ 
     <div className="App">
-    <h1>Spotify's Wrapped</h1>
-    <div class='buttonwrapper'>
-      <button onClick={loginToSpotify}>refresh access token</button>
-      <button onClick={() => setTimeRange('short_term')}>Short Term</button>
-      <button onClick={() => setTimeRange('medium_term')}>Medium Term</button>
-      <button onClick={() => setTimeRange('long_term')}>Long Term</button>
-    </div>
+      
+      <h1>Spotify's Wrapped</h1>
+      <div className="buttonwrapper"> {/* Use className instead of class */}
+        <button onClick={() => setTimeRange('short_term')}>Short Term</button>
+        <button onClick={() => setTimeRange('medium_term')}>Medium Term</button>
+        <button onClick={() => setTimeRange('long_term')}>Long Term</button>
+      </div>
       <h2>Top Artists</h2>
       {topArtists.length > 0 ? (
         <ul>
@@ -113,8 +148,11 @@ function App() {
       ) : (
         <p>Loading top artists...</p>
       )}
-    </div>
-  );
-}
 
+      </div>
+      
+
+  );
+      };
+  
 export default App;

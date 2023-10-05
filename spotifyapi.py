@@ -1,26 +1,35 @@
-import time
+
 import requests
 import base64
-from flask import Flask, request, redirect, session, jsonify, render_template
-from flask_cors import CORS
+from flask import Flask, request, redirect, session, jsonify, render_template,send_file
+
 from urllib.parse import urlencode
 import ticketmasterapi
+
+from googlecloudsql import *
+
+
+
+
 
 # Define your Spotify app credentials
 client_id = "db10f7b93fda4eb9995c51fa223addeb"
 client_secret = "cd019f241f19431da6bc569127e6c79b"
 redirect_uri = "http://localhost:5000/callback"
-scope = "user-top-read"
+scope = "user-top-read, user-read-private, user-read-email"
 
 # Create a Flask app
 app = Flask(__name__)
-CORS(app)
+
 app.secret_key = 'your_secret_key'
 
 # Spotify API endpoints
 authorize_url = "https://accounts.spotify.com/authorize"
 token_url = "https://accounts.spotify.com/api/token"
 top_artists_url = "https://api.spotify.com/v1/me/top/artists"
+user_url="https://api.spotify.com/v1/me/"
+
+
 
 # Function to generate the authorization URL
 def generate_authorization_url():
@@ -44,12 +53,14 @@ def exchange_code_for_access_token(code):
         "redirect_uri": redirect_uri
     }
     response = requests.post(token_url, data=data, headers=headers)
+    session['refresh_token'] = response.json().get("refresh_token")
     return response.json().get("access_token")
+
 
 # Function to get the user's top artists
 def get_top_artists(access_token, time_range):
     headers = {"Authorization": f"Bearer {access_token}"}
-    params = {"time_range": time_range, "limit":1}
+    params = {"time_range": time_range, "limit":10}
     response = requests.get(top_artists_url, params=params, headers=headers)
     return response.json()
 
@@ -64,7 +75,7 @@ def getartists():
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+   return send_file(f'../src/login.js', mimetype='application/javascript')
 # Route to initiate the Spotify authorization process
 @app.route('/login')
 def login():
@@ -78,10 +89,55 @@ def callback():
     code = request.args.get('code')
     access_token = exchange_code_for_access_token(code)
     session['access_token'] = access_token
-    print(session['access_token'])
+    headers = {"Authorization": f"Bearer {access_token}"}
+    response= requests.get(user_url, headers=headers)
+    user_name=response.json()['display_name']
+    user_email= response.json()['email']
+    session['user_name']=user_name
+    session['user_email']=user_email
+    if not query_user(user_email):
+        insert_users(user_name,user_email)
+
+   
     return redirect('http://localhost:3000/')
 
+@app.route('/refresh_token', methods=['POST'])
+def refresh_token():
+    # Extract the user's refresh token from the request
+    refresh_token = session['refresh_token']
+    
+    # Make a POST request to Spotify's token endpoint to refresh the access token
+    # Use the refresh token as a parameter to obtain a new access token
+    # You may need to use a library like requests or an OAuth2 library for this step
 
+    # Example using the requests library:
+   
+
+    CLIENT_ID = client_id
+    CLIENT_SECRET = client_secret
+    SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token'
+
+    data = {
+        'grant_type': 'refresh_token',
+        'refresh_token': refresh_token,
+    }
+
+    headers = {
+        'Authorization': 'Basic ' + base64.b64encode(f'{CLIENT_ID}:{CLIENT_SECRET}'.encode('utf-8')).decode('utf-8'),
+    }
+
+    response = requests.post(SPOTIFY_TOKEN_URL, data=data, headers=headers)
+    
+    if response.status_code == 200:
+        # Parse the response to extract the new access token
+        new_access_token = response.json()['access_token']
+        
+        session['access_token']=new_access_token
+        # Return the new access token to the client
+        return jsonify({'access_token': new_access_token})
+    else:
+        # Handle token refresh error (e.g., invalid refresh token)
+        return jsonify({'error': 'Token refresh failed'}), 400
 
 
     
@@ -89,10 +145,7 @@ def callback():
 def concerts():
     latitude = request.args.get('latitude')
     longitude = request.args.get('longitude')
-    print(latitude)
-    print(longitude)
-    print('testing')
-
+   
     time=request.args.get('time')
     
     # Fetch the user's top artists for the last month (you can change the time range)
@@ -114,7 +167,7 @@ def concerts():
     for artist in artist_names:
         
         event_details.append(ticketmasterapi.get_near_events(artist,latitude,longitude))
-    
+    print(event_details)
     return(event_details)
     
 
