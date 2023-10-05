@@ -49,6 +49,20 @@ def createdb():
     except mysql.connector.Error as err:
         print(f"Error: {err}")
 
+def get_user_id(email):
+    conn = connection()
+    cursor = conn.cursor()
+
+    # Use a parameterized query to prevent SQL injection
+    table_query = "SELECT user_id FROM users WHERE email = %s"
+    cursor.execute(table_query, (email,))
+
+    result = cursor.fetchone()  # Use fetchone() to retrieve a single row
+    cursor.close()
+    conn.close()
+
+    return result
+
 def query_table(table_name):
     conn = connection()
     cursor = conn.cursor()
@@ -103,10 +117,28 @@ def insert_users(username, email):
     conn.close()
     print('successful insertion')
 
-def insert_your_artists(username,email,artists):
+def insert_your_artists(email,artists):
+    id = get_user_id(email)
     conn = connection()
     cursor = conn.cursor()
-    insert_query = f"INSERT INTO users (username, email) VALUES ('{username}', '{email}')"
+
+    for artist in artists:
+        # Check if the artist exists in the database
+        check_query = f"SELECT COUNT(*) FROM favorite_artists WHERE user_id = '{id}' AND artist_name = '{artist}'"
+        cursor.execute(check_query)
+        result = cursor.fetchone()
+
+        if result[0] == 0:
+            # Artist does not exist, insert it
+            insert_artist_query = f"INSERT INTO favorite_artists (user_id, artist_name) VALUES ('{id}', '{artist}')"
+            cursor.execute(insert_artist_query)
+
+    conn.commit()
+    cursor.close()
+    conn.close()
+
+
+
 
 
 query_user('testuser1@gmail.com')

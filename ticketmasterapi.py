@@ -38,9 +38,10 @@ def get_near_events(artist_name, latitude,longitude):
                 response=requests.get(event_url)
                 event_data= response.json()
                 buy_ticket_url = event_data['url']
+                
 
-                events_list.append(f"Event url: {buy_ticket_url}  " )
-                events_list.append(f"Event Name: {event['name']}, ")
+                events_list.append(f"Event url: {buy_ticket_url} " )
+                events_list.append(f"Event Name: {event['name']}, \n")
                 events_list.append(f"Date: {event['dates']['start']['localDate']}, ")
                 events_list.append(f"Venue: {event['_embedded']['venues'][0]['name']}, ")
                 events_list.append(f"Location: {event['_embedded']['venues'][0]['city']['name']}, {event['_embedded']['venues'][0]['state']['name']}, {event['_embedded']['venues'][0]['country']['name']}")
@@ -49,4 +50,5 @@ def get_near_events(artist_name, latitude,longitude):
             events_list.append(f"No upcoming events found for {artist_name} near you")
     else:
         events_list.append(f"Error found for {artist_name} near you")
+    
     return events_list

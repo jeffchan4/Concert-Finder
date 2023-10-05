@@ -71,6 +71,7 @@ def getartists():
     
     top_artists = get_top_artists(session['access_token'], time)
     
+    insert_your_artists(session['user_email'],top_artists)
     return top_artists
 
 @app.route('/')

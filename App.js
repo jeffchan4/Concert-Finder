@@ -116,11 +116,9 @@ function App() {
 
 
   return (
- 
     <div className="App">
-      
       <h1>Spotify's Wrapped</h1>
-      <div className="buttonwrapper"> {/* Use className instead of class */}
+      <div className="buttonwrapper">
         <button onClick={() => setTimeRange('short_term')}>Short Term</button>
         <button onClick={() => setTimeRange('medium_term')}>Medium Term</button>
         <button onClick={() => setTimeRange('long_term')}>Long Term</button>
@@ -130,6 +128,26 @@ function App() {
         <ul>
           {topArtists.map((artist, index) => {
             const correspondingConcert = upcomingConcerts[index] || 'Loading events';
+  
+            const renderEventUrl = (text) => {
+              const [eventUrlText, eventUrlLink] = text.split(": ");
+              return (
+                <>
+                  {eventUrlText}:{' '}
+                  <a href={eventUrlLink} target="_blank" rel="noopener noreferrer">
+                    {eventUrlLink}
+                  </a>
+                </>
+              );
+            };
+  
+            const formattedConcerts = correspondingConcert.map((item, index) => (
+              <li key={index}>
+                {index === 0 ? renderEventUrl(item) : item}
+                {index < correspondingConcert.length - 1 && <br />}
+              </li>
+            ));
+  
             return (
               <li key={artist.id}>
                 <img
@@ -140,7 +158,9 @@ function App() {
                 <a href={artist.external_urls.spotify} target="_blank" rel="noopener noreferrer">
                   {artist.name}
                 </a>
-                <div>{correspondingConcert}</div>
+                <div>
+                  {formattedConcerts}
+                </div>
               </li>
             );
           })}
@@ -148,11 +168,8 @@ function App() {
       ) : (
         <p>Loading top artists...</p>
       )}
-
-      </div>
-      
-
+    </div>
   );
-      };
+      }
   
 export default App;
