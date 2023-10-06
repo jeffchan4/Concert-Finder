@@ -157,12 +157,12 @@ function App() {
               );
             };
   
-            const formattedConcerts = upcomingConcerts.map((item, index) => (
+            const formattedConcerts = correspondingConcerts.map((item, index) => (
               
               <li key={index}>
                 
-                {index === 0 ? renderEventUrl(item[0]) : item}
-                {index < upcomingConcerts.length - 1 && <br />}
+                {index === 0 ? renderEventUrl(item) : item}
+                {index < correspondingConcerts.length - 1 && <br />}
               </li>
             ));
   

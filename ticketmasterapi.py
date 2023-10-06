@@ -37,6 +37,7 @@ def get_near_events(artist_name, latitude,longitude):
                 event_url=f"https://app.ticketmaster.com/discovery/v2/events/{event_id}.json?apikey={api_key}"
                 response=requests.get(event_url)
                 event_data= response.json()
+               
                 buy_ticket_url = event_data['url']
                 
 
@@ -47,8 +48,8 @@ def get_near_events(artist_name, latitude,longitude):
                 events_list.append(f"Location: {event['_embedded']['venues'][0]['city']['name']}, {event['_embedded']['venues'][0]['state']['name']}, {event['_embedded']['venues'][0]['country']['name']}")
                 
         else:
-            events_list.append(f"No upcoming events found for {artist_name} near you")
+            events_list.append(f"Error found for {artist_name} near you")
     else:
-        events_list.append(f"Error found for {artist_name} near you")
+        events_list.append(f"No upcoming events for {artist_name} near you")
     
     return events_list

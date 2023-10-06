@@ -141,7 +141,7 @@ def insert_your_artists(email,artists):
 
 
 
-query_user('testuser1@gmail.com')
+
 
 
 

@@ -60,7 +60,7 @@ def exchange_code_for_access_token(code):
 # Function to get the user's top artists
 def get_top_artists(access_token, time_range):
     headers = {"Authorization": f"Bearer {access_token}"}
-    params = {"time_range": time_range, "limit":10}
+    params = {"time_range": time_range, "limit":1}
     response = requests.get(top_artists_url, params=params, headers=headers)
     return response.json()
 
@@ -71,7 +71,11 @@ def getartists():
     
     top_artists = get_top_artists(session['access_token'], time)
     
-    insert_your_artists(session['user_email'],top_artists)
+    top_items= top_artists['items']
+    top_artist_names = [item['name'] for item in top_items]
+    
+    
+    # insert_your_artists(session['user_email'],top_artist_names)
     return top_artists
 
 @app.route('/')
@@ -164,11 +168,11 @@ def concerts():
         images = artist['images'][2]["url"]
         artist_names.append(name)
         artist_images.append(images)
-    
+   
     for artist in artist_names:
         
         event_details.append(ticketmasterapi.get_near_events(artist,latitude,longitude))
-    print(event_details)
+      
     return(event_details)
     
 
