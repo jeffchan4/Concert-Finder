@@ -47,8 +47,10 @@ function App() {
               return response.json();
             })
             .then((data) => {
+              
               // Update the state with the fetched concert data
               setUpcomingConcerts(data);
+              
               resolve(); // Resolve the promise when concert data is fetched
             })
             .catch((error) => {
@@ -109,7 +111,21 @@ function App() {
   useEffect(() => {
     // Call fetchTopArtists when the component mounts
     fetchTopArtists();
+    
   }, [fetchTopArtists]);
+  
+  useEffect(() => {
+    // This effect runs whenever upcomingConcerts changes
+    // You can put your logic here that depends on the updated upcomingConcerts state
+    // For example, you can call a function or perform other actions.
+    // Make sure to check for the conditions you need before proceeding.
+
+    if (upcomingConcerts.length > 0) {
+      console.log(upcomingConcerts)
+      // You can proceed with other functions here
+      // This block will execute when upcomingConcerts has data
+    }
+  }, [upcomingConcerts]);
 
 
   
@@ -127,8 +143,8 @@ function App() {
       {topArtists.length > 0 ? (
         <ul>
           {topArtists.map((artist, index) => {
-            const correspondingConcert = upcomingConcerts[index] || 'Loading events';
-  
+            const correspondingConcerts=upcomingConcerts[index]
+            console.log(correspondingConcerts)
             const renderEventUrl = (text) => {
               const [eventUrlText, eventUrlLink] = text.split(": ");
               return (
@@ -141,10 +157,12 @@ function App() {
               );
             };
   
-            const formattedConcerts = correspondingConcert.map((item, index) => (
+            const formattedConcerts = upcomingConcerts.map((item, index) => (
+              
               <li key={index}>
-                {index === 0 ? renderEventUrl(item) : item}
-                {index < correspondingConcert.length - 1 && <br />}
+                
+                {index === 0 ? renderEventUrl(item[0]) : item}
+                {index < upcomingConcerts.length - 1 && <br />}
               </li>
             ));
   
