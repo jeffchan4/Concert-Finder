@@ -47,7 +47,7 @@ function App() {
               return response.json();
             })
             .then((data) => {
-              
+             
               // Update the state with the fetched concert data
               setUpcomingConcerts(data);
               
@@ -121,12 +121,30 @@ function App() {
     // Make sure to check for the conditions you need before proceeding.
 
     if (upcomingConcerts.length > 0) {
-      console.log(upcomingConcerts)
+      
       // You can proceed with other functions here
       // This block will execute when upcomingConcerts has data
     }
   }, [upcomingConcerts]);
 
+  const [data, setData] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchSimilarUsers = () => {
+    setIsLoading(true);
+
+    // Make a fetch request to your Flask route to get the data
+    fetch('/get_users_w_same_artists')
+      .then((response) => response.json())
+      .then((responseData) => {
+        setData(responseData);
+        setIsLoading(false);
+      })
+      .catch((error) => {
+        console.error('Error fetching data:', error);
+        setIsLoading(false);
+      });
+  };
 
   
 
@@ -138,13 +156,15 @@ function App() {
         <button onClick={() => setTimeRange('short_term')}>Short Term</button>
         <button onClick={() => setTimeRange('medium_term')}>Medium Term</button>
         <button onClick={() => setTimeRange('long_term')}>Long Term</button>
+        
       </div>
       <h2>Top Artists</h2>
-      {topArtists.length > 0 ? (
+      
+      {topArtists.length > 0 && upcomingConcerts !== null && upcomingConcerts.length > 0 ?  (
         <ul>
           {topArtists.map((artist, index) => {
-            const correspondingConcerts=upcomingConcerts[index]
-            console.log(correspondingConcerts)
+            const correspondingConcerts = upcomingConcerts[index];
+            console.log(correspondingConcerts);
             const renderEventUrl = (text) => {
               const [eventUrlText, eventUrlLink] = text.split(": ");
               return (
@@ -158,36 +178,50 @@ function App() {
             };
   
             const formattedConcerts = correspondingConcerts.map((item, index) => (
-              
               <li key={index}>
-                
                 {index === 0 ? renderEventUrl(item) : item}
                 {index < correspondingConcerts.length - 1 && <br />}
               </li>
             ));
   
             return (
-              <li key={artist.id}>
-                <img
-                  src={artist.images[0]['url']}
-                  alt={artist.name}
-                  style={{ width: '60px', height: '60px' }}
-                />
-                <a href={artist.external_urls.spotify} target="_blank" rel="noopener noreferrer">
-                  {artist.name}
-                </a>
-                <div>
-                  {formattedConcerts}
-                </div>
-              </li>
+              <div>
+                <li key={artist.id}>
+                  <img
+                    src={artist.images[0]['url']}
+                    alt={artist.name}
+                    style={{ width: '60px', height: '60px' }}
+                  />
+                  <a href={artist.external_urls.spotify} target="_blank" rel="noopener noreferrer">
+                    {artist.name}
+                  </a>
+                  <div>
+                    {formattedConcerts}
+                  </div>
+                </li>
+            
+                
+              </div>
             );
           })}
         </ul>
       ) : (
         <p>Loading top artists...</p>
       )}
+      {/* Data from Flask */}
+      <h2>Find Friends</h2>
+                <button onClick={fetchSimilarUsers } disabled={isLoading}>
+                  {isLoading ? 'Fetching Data...' : 'Fetch Data'}
+                </button>
+                <ul>
+                  {Object.keys(data).map((key) => (
+                    <li key={key}>
+                      <strong>{key}</strong> also listens to {data[key]}
+                    </li>
+                  ))}
+                </ul>
     </div>
+    
   );
       }
-  
-export default App;
+  export default App;

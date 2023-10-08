@@ -58,15 +58,16 @@ def get_user_id(email):
     cursor.execute(table_query, (email,))
 
     result = cursor.fetchone()  # Use fetchone() to retrieve a single row
+    user_id=result[0]
     cursor.close()
     conn.close()
 
-    return result
+    return user_id
 
 def query_table(table_name):
     conn = connection()
     cursor = conn.cursor()
-    table_query = f"SELECT email FROM {table_name}"
+    table_query = f"SELECT * FROM {table_name}"
     cursor.execute(table_query)
     result = cursor.fetchall()  # Use fetchall() to retrieve all rows
 
@@ -89,6 +90,51 @@ def delete_table(table_name):
 
     print(f"Table '{table_name}' deleted successfully!")
 
+def delete_users_by_email(email):
+    conn = connection()
+    cursor = conn.cursor()
+
+    # Delete users with the specified email
+    delete_query = f"DELETE FROM users WHERE email = '{email}'"
+    cursor.execute(delete_query)
+    conn.commit()
+
+    # Check if any rows were affected
+    if cursor.rowcount > 0:
+        print(f"Deleted {cursor.rowcount} user(s) with email {email}")
+    else:
+        print(f"No users found with email {email}")
+
+    cursor.close()
+    conn.close()
+
+def delete_favorite_artist_by_id(user_id):
+    conn = connection()
+    cursor = conn.cursor()
+
+    # Delete the favorite artist with the specified ID
+    delete_query = f"DELETE FROM favorite_artists WHERE user_id = {user_id}"
+    cursor.execute(delete_query)
+    conn.commit()
+
+    # Check if any rows were affected
+    if cursor.rowcount > 0:
+        print(f"Deleted favorite artist with ID {user_id}")
+    else:
+        print(f"No favorite artist found with ID {user_id}")
+
+    cursor.close()
+    conn.close()
+
+
+def query_user_name(id):
+    conn = connection()
+    cursor = conn.cursor()
+    user_name_query= f"SELECT username FROM users WHERE user_id = {id}"
+    cursor.execute(user_name_query)
+    result = cursor.fetchone()
+    return result
+
 
 def query_user(email):
     conn = connection()
@@ -106,19 +152,44 @@ def query_user(email):
         return True
     return False
 
+def query_artists(email):
+    conn = connection()
+    cursor = conn.cursor()
+    id = get_user_id(email)
+    # Use a parameterized query to prevent SQL injection
+    table_query = "SELECT artist_name FROM favorite_artists WHERE user_id = %s"
+    cursor.execute(table_query, (id,))
+
+    result = cursor.fetchall()  # Use fetchone() to retrieve a single row
+    cursor.close()
+    conn.close()
+    return result
 
 def insert_users(username, email):
     conn = connection()
     cursor = conn.cursor()
-    insert_query = f"INSERT INTO users (username, email) VALUES ('{username}', '{email}')"
-    cursor.execute(insert_query)
-    conn.commit()
+
+    # Check if the email or username already exists
+    check_query = f"SELECT * FROM users WHERE username = '{username}' OR email = '{email}'"
+    cursor.execute(check_query)
+    existing_user = cursor.fetchone()
+
+    if existing_user:
+        print("User with the same username or email already exists.")
+    else:
+        # Insert the user if not already in the database
+        insert_query = f"INSERT INTO users (username, email) VALUES ('{username}', '{email}')"
+        cursor.execute(insert_query)
+        conn.commit()
+        print('Successful insertion')
+
     cursor.close()
     conn.close()
-    print('successful insertion')
+
 
 def insert_your_artists(email,artists):
     id = get_user_id(email)
+    print(id)
     conn = connection()
     cursor = conn.cursor()
 
@@ -136,7 +207,44 @@ def insert_your_artists(email,artists):
     conn.commit()
     cursor.close()
     conn.close()
+    print('successful insertion')
 
+def users_w_similar_artists(email):
+    current_user_id = get_user_id(email)
+    conn = connection()
+    cursor = conn.cursor()
+    list_artists = query_artists(email)
+    similar_users={}
+    for artist_tuple in list_artists:
+        artist = artist_tuple[0]  # Unpack the value from the tuple
+      
+        artist_id_query = f"SELECT user_id FROM favorite_artists WHERE user_id != {current_user_id} and artist_name='{artist}'"
+        cursor.execute(artist_id_query)
+        result = cursor.fetchall()
+        
+        for another_user in result:
+            user_name=query_user_name(another_user[0])[0]
+            if user_name not in similar_users:
+                similar_users[user_name]=[]
+            similar_users[user_name].append(artist)
+    
+    print(similar_users)
+    return similar_users
+
+    
+        
+        
+
+
+users_w_similar_artists('jeffchan4@icloud.com')
+
+
+
+
+
+
+# query_table('users')
+# query_table('favorite_artists')
 
 
 
