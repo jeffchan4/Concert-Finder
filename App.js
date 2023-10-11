@@ -6,7 +6,7 @@ function App() {
   const [upcomingConcerts, setUpcomingConcerts] = useState([]);
   const [timeRange, setTimeRange] = useState('short_term');
   const [accessToken, setAccessToken] = useState(null);
- 
+  const [activeButton, setActiveButton] = useState('short_term'); // Initialize with the default button
 
   const fetchTopArtists = useCallback(() => {
     // Fetch data from Flask endpoint for top artists
@@ -145,23 +145,44 @@ function App() {
         setIsLoading(false);
       });
   };
+  const handleButtonClick = (button) => {
+    setActiveButton(button);
+    setTimeRange(button); // Set the time range when a button is clicked
+  };
 
   
 
 
   return (
     <div className="App">
+      <header>
       <h1>Spotify's Wrapped</h1>
+      </header>
       <div className="buttonwrapper">
-        <button onClick={() => setTimeRange('short_term')}>Short Term</button>
-        <button onClick={() => setTimeRange('medium_term')}>Medium Term</button>
-        <button onClick={() => setTimeRange('long_term')}>Long Term</button>
+      <button
+            className={activeButton === 'short_term' ? 'active' : ''}
+            onClick={() => handleButtonClick('short_term')}
+          >
+            Short Term
+          </button>
+          <button
+            className={activeButton === 'medium_term' ? 'active' : ''}
+            onClick={() => handleButtonClick('medium_term')}
+          >
+            Medium Term
+          </button>
+          <button
+            className={activeButton === 'long_term' ? 'active' : ''}
+            onClick={() => handleButtonClick('long_term')}
+          >
+            Long Term
+          </button>
         
       </div>
       <h2>Top Artists</h2>
       
       {topArtists.length > 0 && upcomingConcerts !== null && upcomingConcerts.length > 0 ?  (
-        <ul>
+        <ol>
           {topArtists.map((artist, index) => {
             const correspondingConcerts = upcomingConcerts[index];
             console.log(correspondingConcerts);
@@ -178,7 +199,7 @@ function App() {
             };
   
             const formattedConcerts = correspondingConcerts.map((item, index) => (
-              <li key={index}>
+              <li  className='nostyleli' key={index}>
                 {index === 0 ? renderEventUrl(item) : item}
                 {index < correspondingConcerts.length - 1 && <br />}
               </li>
@@ -186,7 +207,7 @@ function App() {
   
             return (
               <div>
-                <li key={artist.id}>
+                <li value={index+1} key={artist.id}>
                   <img
                     src={artist.images[0]['url']}
                     alt={artist.name}
@@ -204,7 +225,7 @@ function App() {
               </div>
             );
           })}
-        </ul>
+        </ol>
       ) : (
         <p>Loading top artists...</p>
       )}
