@@ -211,15 +211,24 @@ function App() {
                   <img
                     src={artist.images[0]['url']}
                     alt={artist.name}
-                    style={{ width: '60px', height: '60px' }}
+                    style={{ width: '80px', height: '80px' }}
                   />
-                  <a href={artist.external_urls.spotify} target="_blank" rel="noopener noreferrer">
+                  <br />
+                  
+                  <a href={artist.external_urls.spotify} target="_blank" rel="noopener noreferrer" style= {{ fontSize: '24px' }}>
                     {artist.name}
+                    
                   </a>
+                  <br/>
+                  <button className='find_concert'>Find Concerts</button>
+                  <br/>
+                  <br/>
                   <div>
                     {formattedConcerts}
                   </div>
                 </li>
+                <br/>
+                <br/>
             
                 
               </div>
