@@ -73,8 +73,7 @@ def getartists():
     
     top_items= top_artists['items']
     top_artist_names = [item['name'] for item in top_items]
-    print(session['user_email'])
-    print(top_artist_names)
+    
     
     insert_your_artists(session['user_email'],top_artist_names)
     return top_artists
@@ -97,6 +96,7 @@ def callback():
     session['access_token'] = access_token
     headers = {"Authorization": f"Bearer {access_token}"}
     response= requests.get(user_url, headers=headers)
+ 
     user_name=response.json()['display_name']
     user_email= response.json()['email']
     session['user_name']=user_name
@@ -149,32 +149,15 @@ def refresh_token():
     
 @app.route('/get_concerts')
 def concerts():
+    artist= request.args.get('artist')
     latitude = request.args.get('latitude')
     longitude = request.args.get('longitude')
    
     time=request.args.get('time')
+    print(artist)
+    print(time)
     
-    # Fetch the user's top artists for the last month (you can change the time range)
-    top_artists = get_top_artists(session['access_token'], time)
-    
-    artist_items = top_artists.get('items', [])
-
-    artist_names = []
-    artist_images = []
-    event_details=[]
-    for artist in artist_items:
-        
-        name = artist['name']
-        
-        images = artist['images'][2]["url"]
-        artist_names.append(name)
-        artist_images.append(images)
-   
-    for artist in artist_names:
-        
-        event_details.append(ticketmasterapi.get_near_events(artist,latitude,longitude))
-      
-    return(event_details)
+    return ticketmasterapi.get_near_events(artist,latitude,longitude)
 
 @app.route('/get_users_w_same_artists')
 def get_sim_users():

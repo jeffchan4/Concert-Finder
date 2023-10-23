@@ -1,4 +1,59 @@
 import requests
+
+# def get_artist_ids(artist_name):## get artist ids and then put them in a list
+#     api_key = '	sA1PvXgvPPZAlLvyKo9wA1A2GHV3RqDB'
+#     base_url='https://app.ticketmaster.com/discovery/v2/attractions.json'
+#     params={
+#         'keyword':
+#     }
+#     pass
+# def testfunc():
+#     # Replace 'YOUR_API_KEY' with your actual Ticketmaster API key
+#     api_key = '	sA1PvXgvPPZAlLvyKo9wA1A2GHV3RqDB'
+
+
+
+#     # Ticketmaster API endpoint for searching events
+#     base_url = f'https://app.ticketmaster.com/discovery/v2/attractions.json?keyword=Joji&countryCode=US&apikey={api_key}'
+
+#     response = requests.get(base_url)
+    
+#     # Parse the JSON response
+#     data = response.json()
+    
+#     print(data['_embedded']['attractions'][0]['classifications'])
+
+    
+# def get_attraction():
+#     api_key = '	sA1PvXgvPPZAlLvyKo9wA1A2GHV3RqDB'
+
+
+
+#     # Ticketmaster API endpoint for searching events
+#     base_url = 'https://app.ticketmaster.com/discovery/v2/events.json'
+
+#     # Parameters for artist, event, and location search
+#     params = {
+#         'apikey': api_key,
+
+#         'keyword': 'Bad Bunny',
+#         'classificationName': 'music',  # You can specify the type of event (e.g., music)
+#         # 'latlong': f'{latitude},{longitude}' ,
+#         # 'genreId':'KnvZfZ7vAv1',
+#         'city': 'Toronto',
+#         'size': 1,
+        
+#     }
+
+#     # Make the request to search for artist events near the specified location
+#     response = requests.get(base_url, params=params)
+    
+#     # Parse the JSON response
+#     data = response.json()
+#     print(data)
+    # Parse the JSON response
+    
+
 def get_near_events(artist_name, latitude,longitude):
     # Replace 'YOUR_API_KEY' with your actual Ticketmaster API key
     api_key = '	sA1PvXgvPPZAlLvyKo9wA1A2GHV3RqDB'
@@ -14,6 +69,7 @@ def get_near_events(artist_name, latitude,longitude):
         'keyword': artist_name,
         'classificationName': 'music',  # You can specify the type of event (e.g., music)
         # 'latlong': f'{latitude},{longitude}' ,
+        
         'city':'Toronto',
         'size': 1,
         
@@ -52,4 +108,6 @@ def get_near_events(artist_name, latitude,longitude):
     else:
         events_list.append(f"No upcoming events for {artist_name} near you")
     
+    print(events_list)
     return events_list
+

@@ -1,6 +1,6 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #f2f2f2;
+  background-color: #dfede0;
   margin: 0;
   padding: 0;
 }
@@ -70,4 +70,15 @@ button:hover {
 .nostyleli{
   list-style-type: none;
 }
-
+.find_concert{
+  border:1px solid;
+  padding:0 px;
+  border-radius:10px
+}
+.find_concert:hover{
+  font-size: 15px;
+  background:none;
+  font-weight: bold;
+  border: 2px solid;
+  margin: 0px;
+}

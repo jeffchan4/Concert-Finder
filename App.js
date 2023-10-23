@@ -8,6 +8,8 @@ function App() {
   const [accessToken, setAccessToken] = useState(null);
   const [activeButton, setActiveButton] = useState('short_term'); // Initialize with the default button
 
+  const  [findbuttonVisibility, setfindButtonVisibility] = useState({});
+  
   const fetchTopArtists = useCallback(() => {
     // Fetch data from Flask endpoint for top artists
     const artistFetch = fetch(`/get_top_artists?time=${timeRange}`)
@@ -29,51 +31,44 @@ function App() {
       .catch((error) => {
         console.error('Error fetching top artists:', error);
       });
-
-    // Fetch data from Flask endpoint for upcoming concerts
-    const concertFetch = new Promise((resolve, reject) => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          console.log('Latitude:', position.coords.latitude);
-          console.log('Longitude:', position.coords.longitude);
-          const { latitude, longitude } = position.coords;
-
-          // Send latitude and longitude to the Flask backend and fetch concerts
-          fetch(`/get_concerts?time=${timeRange}&latitude=${latitude}&longitude=${longitude}`)
-            .then((response) => {
-              if (!response.ok) {
-                throw new Error('Network response was not ok');
-              }
-              return response.json();
-            })
-            .then((data) => {
-             
-              // Update the state with the fetched concert data
-              setUpcomingConcerts(data);
-              
-              resolve(); // Resolve the promise when concert data is fetched
-            })
-            .catch((error) => {
-              console.error('Error fetching concerts:', error);
-              reject(error); // Reject the promise if there's an error
-            });
-        },
-        (error) => {
-          console.error('Error getting geolocation:', error);
-          reject(error); // Reject the promise if there's an error
-        }
-      );
-    });
-
-    // Wait for both artistFetch and concertFetch to complete
-    Promise.all([artistFetch, concertFetch])
-      .catch((error) => {
-        // Handle any errors that occurred during the fetch
-        console.error('Error in fetchTopArtists:', error);
-      });
-  }, [timeRange]);
+    },[timeRange]);
+   
+  // Fetch data from Flask endpoint for upcoming concerts
+  const concertFetch = (artist) => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
   
-  useEffect(() => {
+        // Send latitude and longitude to the Flask backend and fetch concerts
+        fetch(`/get_concerts?time=${timeRange}&latitude=${latitude}&longitude=${longitude}&artist=${artist}`)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.json();
+          })
+          .then((data) => {
+            // Update the state with the fetched concert data
+            setUpcomingConcerts((prevData) => ({
+              ...prevData,
+              [artist]: data, // Store concert data for the artist using their name as the key
+            }));
+            console.log(upcomingConcerts);
+          })
+          .catch((error) => {
+            console.error('Error fetching concerts:', error);
+          });
+      },
+      (error) => {
+        console.error('Error getting geolocation:', error);
+      }
+    );
+  };
+  
+
+    
+  
+  useEffect(() => { //Fetch new access token
     // Fetch the new access token from your Flask backend
     const fetchNewAccessToken = async () => {
       try {
@@ -149,7 +144,12 @@ function App() {
     setActiveButton(button);
     setTimeRange(button); // Set the time range when a button is clicked
   };
-
+  const concertfinderButtonClick = (artistName) => {
+    setfindButtonVisibility((prevVisibility) => ({
+      ...prevVisibility,
+      [artistName]: false, // Set the visibility to false when the button is clicked
+    }));
+  };
   
 
 
@@ -181,11 +181,11 @@ function App() {
       </div>
       <h2>Top Artists</h2>
       
-      {topArtists.length > 0 && upcomingConcerts !== null && upcomingConcerts.length > 0 ?  (
+      {topArtists.length > 0  ? (
         <ol>
           {topArtists.map((artist, index) => {
-            const correspondingConcerts = upcomingConcerts[index];
-            console.log(correspondingConcerts);
+           
+            
             const renderEventUrl = (text) => {
               const [eventUrlText, eventUrlLink] = text.split(": ");
               return (
@@ -198,12 +198,6 @@ function App() {
               );
             };
   
-            const formattedConcerts = correspondingConcerts.map((item, index) => (
-              <li  className='nostyleli' key={index}>
-                {index === 0 ? renderEventUrl(item) : item}
-                {index < correspondingConcerts.length - 1 && <br />}
-              </li>
-            ));
   
             return (
               <div>
@@ -220,12 +214,34 @@ function App() {
                     
                   </a>
                   <br/>
-                  <button className='find_concert'>Find Concerts</button>
-                  <br/>
-                  <br/>
-                  <div>
-                    {formattedConcerts}
+
+                  {findbuttonVisibility[artist.name] !== false &&(
+                  <div key={artist}>
+                  <button
+                    className='find_concert'
+                    onClick={() => {
+                      concertFetch(artist.name);
+                      concertfinderButtonClick(artist.name);
+                    }}
+                  >
+                    Find Concerts
+                  </button>
                   </div>
+                  )}
+                  <br/>
+                  <br/>
+                  
+                  {upcomingConcerts[artist.name] && (
+                  <div>
+                    <p> {renderEventUrl(upcomingConcerts[artist.name][0])}</p>
+                    <p> {upcomingConcerts[artist.name][1]}</p>
+                    <p>{upcomingConcerts[artist.name][2]}</p>
+                    <p>{upcomingConcerts[artist.name][3]}</p>
+                  </div>
+                )}
+
+
+        
                 </li>
                 <br/>
                 <br/>
@@ -235,9 +251,13 @@ function App() {
             );
           })}
         </ol>
-      ) : (
+      ):(
         <p>Loading top artists...</p>
-      )}
+      )
+      }
+      
+
+
       {/* Data from Flask */}
       <h2>Find Friends</h2>
                 <button onClick={fetchSimilarUsers } disabled={isLoading}>
