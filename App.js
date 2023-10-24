@@ -214,6 +214,8 @@ function App() {
                     
                   </a>
                   <br/>
+                  <br>
+                  </br>
 
                   {findbuttonVisibility[artist.name] !== false &&(
                   <div key={artist}>
@@ -258,18 +260,30 @@ function App() {
       
 
 
-      {/* Data from Flask */}
+      
       <h2>Find Friends</h2>
-                <button onClick={fetchSimilarUsers } disabled={isLoading}>
-                  {isLoading ? 'Fetching Data...' : 'Fetch Data'}
-                </button>
-                <ul>
-                  {Object.keys(data).map((key) => (
-                    <li key={key}>
-                      <strong>{key}</strong> also listens to {data[key]}
-                    </li>
-                  ))}
-                </ul>
+      <button onClick={fetchSimilarUsers} disabled={isLoading}>
+        {isLoading ? 'Fetching Data...' : 'Fetch Data'}
+      </button>
+      <ul>
+        {Object.entries(data).map(([userString, artistList]) => {
+          const [id, user_name] = userString.split(',');
+
+          return (
+            <li key={id}>
+              <a
+                href={`http://localhost:5000/reroute_user/${id}/${user_name}`}
+                target="_blank"
+              >
+                <strong>{user_name}</strong>
+              </a>{" "}
+              also listens to {artistList.join(', ')}
+            </li>
+          );
+        })}
+      </ul>
+
+
     </div>
     
   );

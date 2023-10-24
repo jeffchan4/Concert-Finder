@@ -165,6 +165,17 @@ def query_artists(email):
     conn.close()
     return result
 
+def query_artists_by_id(id):
+    conn = connection()
+    cursor = conn.cursor()
+    table_query = "SELECT artist_name FROM favorite_artists WHERE user_id = %s"
+    cursor.execute(table_query, (id,))
+
+    result = cursor.fetchall()  # Use fetchone() to retrieve a single row
+    cursor.close()
+    conn.close()
+    return result
+
 def insert_users(username, email):
     conn = connection()
     cursor = conn.cursor()
@@ -214,7 +225,8 @@ def users_w_similar_artists(email):
     conn = connection()
     cursor = conn.cursor()
     list_artists = query_artists(email)
-    similar_users={}
+   
+    outer_id_similar={}
     for artist_tuple in list_artists:
         artist = artist_tuple[0]  # Unpack the value from the tuple
       
@@ -222,22 +234,26 @@ def users_w_similar_artists(email):
         cursor.execute(artist_id_query)
         result = cursor.fetchall()
         
-        for another_user in result:
-            user_name=query_user_name(another_user[0])[0]
-            if user_name not in similar_users:
-                similar_users[user_name]=[]
-            similar_users[user_name].append(artist)
-    
-    print(similar_users)
-    return similar_users
+        for id_ in result:
+            id=id_[0]
+            id=str(id)
+            user_name=query_user_name(id)[0]
+            result=f'{id},{user_name}'
+            if result not in outer_id_similar:
+                outer_id_similar[result]=[]
 
-    
+            outer_id_similar[result].append(artist)
         
+    
+    print(outer_id_similar)
+    return outer_id_similar
+
+    
+
         
 
-
-users_w_similar_artists('jeffchan4@icloud.com')
-
+insert_your_artists('testuser1@gmail.com',['Imagine Dragons', 'Dua Lipa', 'Pop Smoke'])
+print(query_artists_by_id(1))
 
 
 

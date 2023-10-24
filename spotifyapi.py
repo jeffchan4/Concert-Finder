@@ -165,7 +165,34 @@ def get_sim_users():
     dict_of_users=users_w_similar_artists(email)
     return dict_of_users
     
+@app.route('/reroute_user/<id>/<user_name>')
+def reroute_user(id,user_name):
 
+    
+    return render_template('user.html', id=id, user_name=user_name)
+
+@app.route('/fetch_artist_images')
+def fetch_artist_images():
+    # id=requests.args.get('id')
+    id=1
+    list_of_artists=query_artists_by_id(id)
+    artist_details_url='https://api.spotify.com/v1/search'
+    access_token=session['access_token']
+    headers = {"Authorization": f"Bearer {access_token}"}
+    ret=[]
+   
+
+    for artist in list_of_artists:
+        artist=artist[0]
+        params = {'q': artist, 'type': 'artist'}
+        response = requests.get(artist_details_url, params=params, headers=headers)
+        response.json()
+        data= response.json()['artists']['items'][0]
+        artist_details={'artist_name':data['name'], 
+            'artist_image':data['images'][0]['url'], 
+            'artistURL':data['external_urls']['spotify']}
+        ret.append(artist_details)
+    return ret
 if __name__ == '__main__':
     app.run(debug=True)
 
