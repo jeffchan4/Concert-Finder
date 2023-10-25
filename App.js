@@ -12,7 +12,7 @@ function App() {
   
   const fetchTopArtists = useCallback(() => {
     // Fetch data from Flask endpoint for top artists
-    const artistFetch = fetch(`/get_top_artists?time=${timeRange}`)
+    fetch(`/get_top_artists?time=${timeRange}`)
       .then((response) => {
         if (!response.ok) {
           throw new Error('Network response was not ok');
@@ -24,6 +24,11 @@ function App() {
         if (Array.isArray(data.items)) {
           // Update the state with the fetched data
           setTopArtists(data.items);
+  
+          // Call concertFetch for each top artist
+          data.items.forEach((artist) => {
+            concertFetch(artist.name);
+          });
         } else {
           console.error('Data.items is not an array:', data);
         }
@@ -31,7 +36,8 @@ function App() {
       .catch((error) => {
         console.error('Error fetching top artists:', error);
       });
-    },[timeRange]);
+  }, [timeRange]);
+  
    
   // Fetch data from Flask endpoint for upcoming concerts
   const concertFetch = (artist) => {
@@ -158,6 +164,7 @@ function App() {
       <header>
       <h1>Spotify's Wrapped</h1>
       </header>
+      <img className='spotifylogo' src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyzMf_KIKpV3q-YB93kf-JMcgbqF5TIGhuow&usqp=CAU" alt="Spotify Logo"></img>
       <div className="buttonwrapper">
       <button
             className={activeButton === 'short_term' ? 'active' : ''}
@@ -184,21 +191,31 @@ function App() {
       {topArtists.length > 0  ? (
         <ol>
           {topArtists.map((artist, index) => {
-           
+            
             
             const renderEventUrl = (text) => {
+              if (!text.includes(':')) {
+                return text;
+              }
               const [eventUrlText, eventUrlLink] = text.split(": ");
+              
+              
               return (
                 <>
-                  {eventUrlText}:{' '}
+                  
                   <a href={eventUrlLink} target="_blank" rel="noopener noreferrer">
-                    {eventUrlLink}
+                    Find Tickets
                   </a>
                 </>
               );
             };
-  
-  
+            const split = (text) => {
+              if (text) {
+                const [first, second] = text.split(":");
+                return second;
+              }
+              return null; // Or a default value, depending on your needs
+            };
             return (
               <div>
                 <li value={index+1} key={artist.id}>
@@ -209,17 +226,15 @@ function App() {
                   />
                   <br />
                   
-                  <a href={artist.external_urls.spotify} target="_blank" rel="noopener noreferrer" style= {{ fontSize: '24px' }}>
+                  <a className='artisturl' href={artist.external_urls.spotify} target="_blank" rel="noopener noreferrer" >
                     {artist.name}
                     
                   </a>
-                  <br/>
-                  <br>
-                  </br>
+                  
 
                   {findbuttonVisibility[artist.name] !== false &&(
                   <div key={artist}>
-                  <button
+                  {/* <button
                     className='find_concert'
                     onClick={() => {
                       concertFetch(artist.name);
@@ -227,18 +242,20 @@ function App() {
                     }}
                   >
                     Find Concerts
-                  </button>
+                  </button> */}
                   </div>
                   )}
                   <br/>
                   <br/>
                   
                   {upcomingConcerts[artist.name] && (
-                  <div>
-                    <p> {renderEventUrl(upcomingConcerts[artist.name][0])}</p>
-                    <p> {upcomingConcerts[artist.name][1]}</p>
-                    <p>{upcomingConcerts[artist.name][2]}</p>
-                    <p>{upcomingConcerts[artist.name][3]}</p>
+                  <div className='concert_details_container'>
+                    <div className='concert_box'>
+                    <p className='find_tickets'> {renderEventUrl(upcomingConcerts[artist.name][0])}</p>
+                    <p className='tour_name'> {split(upcomingConcerts[artist.name][1])}</p>
+                    <p className='tour_date'>{split(upcomingConcerts[artist.name][2])}</p>
+                    <p className='tour_location' >{split(upcomingConcerts[artist.name][3])}{split(upcomingConcerts[artist.name][4])}</p>
+                    </div>
                   </div>
                 )}
 
@@ -263,7 +280,7 @@ function App() {
       
       <h2>Find Friends</h2>
       <button onClick={fetchSimilarUsers} disabled={isLoading}>
-        {isLoading ? 'Fetching Data...' : 'Fetch Data'}
+        {isLoading ? 'Finding..' : 'Start Searching'}
       </button>
       <ul>
         {Object.entries(data).map(([userString, artistList]) => {

@@ -4,7 +4,10 @@ body {
   margin: 0;
   padding: 0;
 }
-
+.spotifylogo {
+  height: 160px !important;
+  width: 160px !important;
+}
 header {
   
 
@@ -29,21 +32,30 @@ header {
   /* background-color: #ffffff; */
   border-radius: 30px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  
   /* Set the container height to 100% of the viewport height */
 }
 h1{
   text-align: center;
 }
+.artisturl{
+  font-size: 22px;
+  text-decoration: none;
+}
+
+.artisturl:hover{
+  text-decoration: underline;
+}
 .buttonwrapper {
   display: flex;
-  gap: 10px; /* Adjust the gap between buttons */
+  gap: 50px; /* Adjust the gap between buttons */
   margin-top: 20px; /* Add top margin to the button wrapper */
   justify-content: center;
   margin: 20px 0;
-  
+  padding: 20px;
 }
 
-/* App.css */
+
 
 button {
   border: 2px solid;
@@ -52,16 +64,21 @@ button {
   box-shadow: 5px 5px 10px #888888;
   margin: 0 10px;
   cursor: pointer;
-  border-radius: 50px;
+  border-radius: 5px;
   
 }
 
 button:hover {
-  background: #1db954;
+  
+  font-size:16px;
 }
 
+
 .buttonwrapper button.active {
-  background: #1db954;
+  background: #1ed05c;
+  font-size:18px;
+  font-weight:bold;
+  transform: scale(1.3)
   /* Add any adßditional styles for the active button here */
 }
 
@@ -70,15 +87,19 @@ button:hover {
 .nostyleli{
   list-style-type: none;
 }
-.find_concert{
-  border:1px solid;
-  padding:0 px;
-  border-radius:10px
+/* .concert_details_container{
+  display: flex;
+  flex-direction: column; 
+  justify-content: center; 
+  align-items: center; 
+  width: 200px;
+  height: 200px;
+  background-color: lightblue;
 }
-.find_concert:hover{
-  font-size: 15px;
-  background:none;
-  font-weight: bold;
-  border: 2px solid;
-  margin: 0px;
-}
+
+.concert_box{
+  width: 100px;
+  height: 100px;
+  background-color: lightcoral;
+  border: 2px solid darkred;
+} */

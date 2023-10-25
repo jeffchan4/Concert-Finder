@@ -98,9 +98,9 @@ def get_near_events(artist_name, latitude,longitude):
                 
 
                 events_list.append(f"Event url: {buy_ticket_url} " )
-                events_list.append(f"Event Name: {event['name']}, ")
-                events_list.append(f"Date: {event['dates']['start']['localDate']}, ")
-                events_list.append(f"Venue: {event['_embedded']['venues'][0]['name']}, ")
+                events_list.append(f"Event Name: {event['name']} ")
+                events_list.append(f"Date: {event['dates']['start']['localDate']} ")
+                events_list.append(f"Venue: {event['_embedded']['venues'][0]['name']} ")
                 events_list.append(f"Location: {event['_embedded']['venues'][0]['city']['name']}, {event['_embedded']['venues'][0]['state']['name']}, {event['_embedded']['venues'][0]['country']['name']}")
                 
         else:
