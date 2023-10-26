@@ -1,127 +1,108 @@
-<header>
-<h4>Profile</h4>
-</header>
-<h1>{{user_name}}</h1>
-<body>
-    <h2>Top Artists</h2>
-  
-    <ul id="artistList">
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
 
-    </ul>
+</head>
+<div id="App">
+    <header>
+
+    <h4>Profile</h4>
+    </header>
+    <h1>{{user_name}}'s Top Artists</h1>
     
-  
-    <script>
-      function fetchTopArtists() {
-    // Fetch data from Flask endpoint for top artists
-    fetch('/fetch_artist_images')
-        .then((response) => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then((data) => {
-            const artistList = document.getElementById('artistList');
+   
 
-            data.forEach(artist => {
-                const listItem = document.createElement('li');
-                const artistLink = document.createElement('a');
-                const artistImage = document.createElement('img');
-                
-                artistLink.href = artist.artistURL;
-                artistLink.textContent = artist.artist_name;
+    <ul id="artistList"></ul>
 
-                artistImage.src = artist.artist_image;
-                artistImage.alt = artist.artist_name;
-                artistImage.style.width='80px'
-                artistImage.style.height='80px'
-                
-            
-                const concertFinderButton= document.createElement('button');
-                
-                concertFinderButton.textContent='Find Concerts'
-                const artistName = artist.artist_name;
+</div>
+<script>
+function fetchTopArtists() {
+// Fetch data from Flask endpoint for top artists
 
-                
-                concertFinderButton.addEventListener('click', () => {
-                    // Call the concertFetch function with the artist's name
-                concertFetch(artistName)
-                .then((concertDetailsData) => {
-            // Get the concertDetails div based on its ID
-            const concertDetails = document.getElementById(artistName);
+fetch('/fetch_artist_images?id={{id}}')
+  .then((response) => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then((data) => {
+    const artistList = document.getElementById('artistList');
 
-            if (concertDetails) {
-                // Clear the existing content
-                concertDetails.innerHTML = '';
+    data.forEach(artist => {
+      const listItem = document.createElement('li');
+      const artistLink = document.createElement('a');
+      const artistImage = document.createElement('img');
+      
+      artistLink.href = artist.artistURL;
+      artistLink.textContent = artist.artist_name;
 
-                // Format and display the concert details with <p> elements
-                concertDetailsData.forEach(detail => {
-                    const detailParagraph = document.createElement('p');
-                    detailParagraph.textContent = detail;
-                    concertDetails.appendChild(detailParagraph);
-                });
-            } else {
-                console.error(`ConcertDetails div with ID ${artistName} not found.`);
-            }
-        })
-        .catch((error) => {
-            console.error('Error fetching concert details:', error);
-        });
-                    
-                });
+      artistImage.src = artist.artist_image;
+      artistImage.alt = artist.artist_name;
+      artistImage.style.width = '80px';
+      artistImage.style.height = '80px';
 
+      // Call concertFetch for the artist when the page loads
+      concertFetch(artist.artist_name)
+        .then((concertDetailsData) => {
+          // Get the concertDetails div based on its ID
+          const concertDetails = document.createElement('div');
+          concertDetails.id = artist.artist_name;
 
-
-                const concertDetails=document.createElement('div')
-                concertDetails.id=artistName
-                listItem.appendChild(artistImage);
-                
-                listItem.appendChild(artistLink);
-                
-                listItem.appendChild(concertFinderButton);
-                listItem.appendChild(concertDetails)
-
-                artistList.appendChild(listItem);
-            });
-        })
-        .catch((error) => {
-            console.error('Fetch error:', error);
-        });
-}
-
-// Call the fetchTopArtists function to initiate the fetch when the page loads
-fetchTopArtists();
-
-    </script>
-    <script>
-        const concertFetch = (artistName) => {
-  return new Promise((resolve, reject) => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-
-        fetch(`/get_concerts?latitude=${latitude}&longitude=${longitude}&artist=${artistName}`)
-          .then((response) => {
-            if (!response.ok) {
-              reject(new Error('Network response was not ok'));
-            }
-            return response.json();
-          })
-          .then((concertData) => {
-            resolve(concertData);
-          })
-          .catch((error) => {
-            reject(error);
+          // Format and display the concert details with <p> elements
+          concertDetailsData.forEach(detail => {
+            const detailParagraph = document.createElement('p');
+            detailParagraph.textContent = detail;
+            concertDetails.appendChild(detailParagraph);
           });
-      },
-      (error) => {
-        console.error('Error getting geolocation:', error);
-        reject(error);
-      }
-    );
+
+          // Append artist's details to the list
+          listItem.appendChild(artistImage);
+          listItem.appendChild(artistLink);
+          listItem.appendChild(concertDetails);
+
+          artistList.appendChild(listItem);
+        })
+        .catch((error) => {
+          console.error('Error fetching concert details:', error);
+        });
+    });
+  })
+  .catch((error) => {
+    console.error('Fetch error:', error);
   });
-};
 
+}
+// Call the fetchTopArtists function to initiate the fetch when the page loads
+    fetchTopArtists();
 
-    </script>
-  </body>
+</script>
+<script>
+    const concertFetch = (artistName) => {
+    return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const { latitude, longitude } = position.coords;
+
+            fetch(`/get_concerts?latitude=${latitude}&longitude=${longitude}&artist=${artistName}`)
+            .then((response) => {
+                if (!response.ok) {
+                reject(new Error('Network response was not ok'));
+                }
+                return response.json();
+            })
+            .then((concertData) => {
+                resolve(concertData);
+            })
+            .catch((error) => {
+                reject(error);
+            });
+        },
+        (error) => {
+            console.error('Error getting geolocation:', error);
+            reject(error);
+        }
+        );
+    });
+    };
+</script>
+   

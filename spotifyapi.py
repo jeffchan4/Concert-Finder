@@ -171,10 +171,10 @@ def reroute_user(id,user_name):
     
     return render_template('user.html', id=id, user_name=user_name)
 
-@app.route('/fetch_artist_images')
+@app.route('/fetch_artist_images', methods=['GET'])
 def fetch_artist_images():
-    # id=requests.args.get('id')
-    id=1
+    id=request.args.get('id')
+    print(id)
     list_of_artists=query_artists_by_id(id)
     artist_details_url='https://api.spotify.com/v1/search'
     access_token=session['access_token']
