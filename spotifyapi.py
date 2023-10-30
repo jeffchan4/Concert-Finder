@@ -96,7 +96,7 @@ def callback():
     session['access_token'] = access_token
     headers = {"Authorization": f"Bearer {access_token}"}
     response= requests.get(user_url, headers=headers)
- 
+    print(response)
     user_name=response.json()['display_name']
     user_email= response.json()['email']
     session['user_name']=user_name

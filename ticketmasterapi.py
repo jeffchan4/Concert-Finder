@@ -68,9 +68,9 @@ def get_near_events(artist_name, latitude,longitude):
         'apikey': api_key,
         'keyword': artist_name,
         'classificationName': 'music',  # You can specify the type of event (e.g., music)
-        # 'latlong': f'{latitude},{longitude}' ,
+        'latlong': f'{latitude},{longitude}' ,
         
-        'city':'Toronto',
+        # 'city':'Toronto',
         'size': 1,
         
     }
@@ -108,6 +108,5 @@ def get_near_events(artist_name, latitude,longitude):
     else:
         events_list.append(f"No upcoming events for {artist_name} near you")
     
-    print(events_list)
+    
     return events_list
-

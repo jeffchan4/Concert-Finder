@@ -9,6 +9,43 @@ db_host = "34.132.140.184"  # You can find this in the Google Cloud Console
 db_name = "concertfinderdb"
 sql_script_file = "create_tables.sql"
 
+def test_table():
+    # Create a connection to the database
+    connection = mysql.connector.connect(
+        user=db_user,
+        password=db_password,
+        host=db_host,
+        database=db_name
+    )
+
+    # Create a cursor to interact with the database
+    cursor = connection.cursor()
+
+    # Define the SQL statement to create a table
+    create_table_query = """
+    CREATE TABLE user_concerts (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    concert_id INT,
+    FOREIGN KEY (user_id) REFERENCES users(user_id),
+    FOREIGN KEY (concert_id) REFERENCES concerts(concert_id)
+);
+
+
+    
+    """
+
+    # Execute the SQL statement to create the table
+    cursor.execute(create_table_query)
+
+    # Commit the transaction
+    connection.commit()
+
+    # Close the cursor and the connection
+    cursor.close()
+    connection.close()
+
+
 def connection():
     connection = mysql.connector.connect(
         user=db_user,
@@ -28,7 +65,7 @@ def createdb():
         host=db_host,
         database=db_name
     )
-
+        print(connection)
         # Create a cursor to interact with the database
         cursor = connection.cursor()
 
@@ -48,6 +85,27 @@ def createdb():
 
     except mysql.connector.Error as err:
         print(f"Error: {err}")
+
+def get_tables_from_db():
+    conn= connection()
+    cursor = conn.cursor()
+
+# SQL query to retrieve a list of tables in your database
+    show_tables_query = "SHOW TABLES"
+
+    # Execute the query
+    cursor.execute(show_tables_query)
+
+    # Fetch all the rows (tables) from the result set
+    tables = cursor.fetchall()
+   
+    # Print the list of tables
+    for table in tables:
+        print(table[0])
+
+    # Close the cursor and the database connection
+    cursor.close()
+    conn.close()
 
 def get_user_id(email):
     conn = connection()
@@ -248,13 +306,6 @@ def users_w_similar_artists(email):
     print(outer_id_similar)
     return outer_id_similar
 
-    
-
-        
-
-insert_your_artists('testuser1@gmail.com',['Imagine Dragons', 'Dua Lipa', 'Pop Smoke'])
-print(query_artists_by_id(1))
-
 
 
 
@@ -266,6 +317,5 @@ print(query_artists_by_id(1))
 
 
 
-
-
-
+insert_users('testuser1', 'testuser1@gmail.com')
+insert_your_artists('testuser1@gmail.com',['Drake','Bad Bunny','Mozart'])
