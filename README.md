@@ -13,6 +13,6 @@ The application was developed using Node v17.9.1 and npm 8.11.0.
 
 ## Get started
 
-The user will be prompted to login to their spotify and will be displayed their short term favorite artists initially. The user can change the time period to view their favorite artists based on a specific range. 
+The user will be prompted to login to their spotify and will be displayed their short term favorite artists initially along with Ticketmaster's concert recommendation. The user can change the time period to view their favorite artists based on a specific range. On the bottom of the page, the application will suggest people that has similar artists as the user.
 
 <img width="600" alt="Screen Shot 2024-01-04 at 3 33 33 PM" src="https://github.com/jeffchan4/Concert-Finder/assets/112337204/172c070f-127e-44a7-9d52-a6b882f13470">
